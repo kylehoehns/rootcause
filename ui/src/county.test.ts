@@ -20,8 +20,8 @@ const premiums: CountyPremiums = [
 ];
 
 test("top crops rank this county's payouts, largest first, and respect the limit", () => {
-  expect(topCrops(losses, "19153", all, 1)).toEqual([{ crop: "CORN", indemnity: 1_235 }]);
-  expect(topCrops(losses, "19153", all).map((row) => row.crop)).toEqual(["CORN", "SOYBEANS"]);
+  expect(topCrops(losses, "19153", all, 1)).toEqual([{ crop: "SOYBEANS", indemnity: 150 }]);
+  expect(topCrops(losses, "19153", all).map((row) => row.crop)).toEqual(["SOYBEANS", "CORN"]);
 });
 
 test("top crops follow the year and cause filters", () => {

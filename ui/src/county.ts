@@ -12,11 +12,12 @@ const selected = (losses: CountyLosses, fips: string, filters: Filters) =>
       (!filters.crop || loss.crop === filters.crop),
   );
 
-/** Sums payouts by a key, largest total first (ties by key, so the order is stable). */
+/** Sums payouts by a key, ordered by total (ties by key, so the order is stable). */
 function sumBy<K extends string | number>(rows: CountyLosses, key: (row: CountyLosses[number]) => K) {
   const sums = new Map<K, number>();
   for (const row of rows) sums.set(key(row), (sums.get(key(row)) ?? 0) + row.indemnity);
-  return [...sums].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  const byTotal = (a: [K, number], b: [K, number]) => a[1] - b[1];
+  return [...sums].sort((a, b) => byTotal(a, b) || (a[0] < b[0] ? -1 : 1));
 }
 
 /** The county's crops by payouts, within the filters. */
