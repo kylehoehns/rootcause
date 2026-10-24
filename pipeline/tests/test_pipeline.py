@@ -51,6 +51,27 @@ def test_polk_county_2012_adds_up_to_the_home_page_total(tmp_path):
     assert round(sum(polk), 2) == 3776155.00
 
 
+def test_the_pipeline_publishes_99_iowa_county_boundaries(tmp_path):
+    published = run_published(tmp_path)
+    counties = json.loads(published["iowa-counties.geojson"].read_text())
+    assert counties["type"] == "FeatureCollection"
+    assert len(counties["features"]) == 99
+    assert len({f["properties"]["county_fips"] for f in counties["features"]}) == 99
+    polk = next(f for f in counties["features"] if f["properties"]["county_fips"] == "19153")
+    assert polk["properties"] == {"county_fips": "19153", "county_name": "Polk County"}
+    assert polk["geometry"]["type"] in ("Polygon", "MultiPolygon")
+
+
+def test_the_county_boundaries_cover_every_county_in_the_loss_data(tmp_path):
+    published = run_published(tmp_path)
+    boundaries = {
+        f["properties"]["county_fips"] for f in json.loads(published["iowa-counties.geojson"].read_text())["features"]
+    }
+    losses = {r["county_fips"] for r in json.loads(published["county-losses.json"].read_text())}
+    assert losses == {"19001", "19153", "19169"}
+    assert losses <= boundaries
+
+
 def test_the_latest_maps_week_number_picks_the_same_week_of_every_earlier_year():
     dates = matching_map_dates(date(2025, 7, 1))  # ISO week 27
     assert dates[0] == date(2025, 7, 1)

@@ -1,4 +1,4 @@
-"""Load RMA cause-of-loss files and Drought Monitor county maps for Iowa into DuckDB with dlt, every field as text."""
+"""Load RMA cause-of-loss files, Census county boundaries and Drought Monitor maps for Iowa into DuckDB with dlt."""
 
 import io
 import json
@@ -12,6 +12,10 @@ from pathlib import Path
 import dlt
 
 URL = "https://pubfs-rma.fpac.usda.gov/pub/Web_Data_Files/Summary_of_Business/cause_of_loss/colsom_{year}.zip"
+TIGERWEB_URL = (
+    "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query"
+    "?where=STATE='19'&outFields=GEOID,NAME&returnGeometry=true&maxAllowableOffset=0.005&outSR=4326&f=geojson"
+)
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 FIRST_YEAR = 2001
 
@@ -50,6 +54,7 @@ COLUMNS = [
 ]
 STATE = COLUMNS.index("state_abbreviation")
 
+COUNTY_COLUMNS = ["geoid", "county_name", "geometry_json"]  # geometry_json is the GeoJSON geometry as text
 
 Fetch = Callable[[int], bytes | None]
 
@@ -68,6 +73,15 @@ def fetch_live(year: int) -> bytes | None:
         if error.code == 404:
             return None
         raise
+
+
+def fetch_fixture_boundaries() -> bytes:
+    return (FIXTURES / "tigerweb_iowa_counties.geojson").read_bytes()
+
+
+def fetch_live_boundaries() -> bytes:
+    with urllib.request.urlopen(TIGERWEB_URL, timeout=120) as response:
+        return response.read()
 
 
 def iowa_rows(archive: bytes) -> Iterator[dict[str, str]]:
@@ -94,6 +108,22 @@ def rma(years: list[int], fetch: Fetch):
             yield from iowa_rows(archive)
 
     return cause_of_loss
+
+
+@dlt.source(name="tigerweb")
+def tigerweb(fetch: Callable[[], bytes]):
+    @dlt.resource(
+        name="counties", write_disposition="replace", columns={c: {"data_type": "text"} for c in COUNTY_COLUMNS}
+    )
+    def counties() -> Iterator[dict[str, str]]:
+        for feature in json.loads(fetch())["features"]:
+            yield {
+                "geoid": feature["properties"]["GEOID"],
+                "county_name": feature["properties"]["NAME"],
+                "geometry_json": json.dumps(feature["geometry"], separators=(",", ":")),
+            }
+
+    return counties
 
 
 DROUGHT_URL = (
@@ -170,10 +200,13 @@ def drought_monitor(fetch: FetchDrought, today: date):
 
 
 def ingest(database: Path, *, live: bool) -> None:
-    """Replace `raw.cause_of_loss` and `raw.drought` in the DuckDB file: the real sources, or the committed fixtures."""
+    """Replace `raw.cause_of_loss`, `raw.counties` and `raw.drought` from the real sources or the fixtures."""
     years = list(range(FIRST_YEAR, date.today().year + 1)) if live else [2012]
     pipeline = dlt.pipeline("rma", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
     pipeline.run(rma(years, fetch_live if live else fetch_fixture))
+    pipeline = dlt.pipeline("tigerweb", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
+    pipeline.run(tigerweb(fetch_live_boundaries if live else fetch_fixture_boundaries))
+    pipeline = dlt.pipeline("drought_monitor", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
     if live:
         pipeline.run(drought_monitor(fetch_drought_live, date.today()))
     else:

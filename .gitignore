@@ -26,3 +26,4 @@ ui/playwright-report/
 # Factory
 .factory/runs/
 .sandcastle/
+.pnpm-store/
