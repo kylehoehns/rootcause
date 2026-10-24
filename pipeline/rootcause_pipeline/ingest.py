@@ -125,12 +125,17 @@ def fetch_live_boundaries() -> bytes:
         return response.read()
 
 
-def iowa_rows(archive: bytes, columns: list[str] = COLUMNS) -> Iterator[dict[str, str]]:
+def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Iterator[dict[str, str]]:
     with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
         [name] = zipped.namelist()
         with zipped.open(name) as lines:
-            for line in io.TextIOWrapper(lines, encoding="latin-1"):
+            for number, line in enumerate(io.TextIOWrapper(lines, encoding="latin-1"), start=1):
                 fields = line.rstrip("\r\n").split("|")
+                if len(fields) != len(columns):
+                    raise ValueError(
+                        f"{file} ({year}), line {number}: expected {len(columns)} fields but found {len(fields)}; "
+                        "RMA changed the layout for this year"
+                    )
                 if fields[columns.index("state_abbreviation")].strip() == "IA":
                     yield dict(zip(columns, fields, strict=True))
 
@@ -146,7 +151,7 @@ def rma(years: list[int], fetch: Fetch):
             if archive is None:
                 print(f"no colsom_{year}.zip yet; skipping")
                 continue
-            yield from iowa_rows(archive)
+            yield from iowa_rows(archive, COLUMNS, year, f"colsom_{year}.zip")
 
     return cause_of_loss
 
@@ -164,7 +169,7 @@ def rma_premiums(years: list[int], fetch: Fetch):
             if archive is None:
                 print(f"no sobtpu_{year}.zip yet; skipping")
                 continue
-            yield from iowa_rows(archive, PREMIUM_COLUMNS)
+            yield from iowa_rows(archive, PREMIUM_COLUMNS, year, f"sobtpu_{year}.zip")
 
     return summary_of_business
 
