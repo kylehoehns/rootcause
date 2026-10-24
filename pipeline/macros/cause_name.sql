@@ -4,7 +4,7 @@
 {% macro cause_name(column) -%}
     case
         when {{ cause_key(column) }} = '' then 'Not recorded'
-        when {{ cause_key(column) }} similar to '.*(crops only|grp|grip|arpi|stax|sco/eco).*'
+        when {{ cause_key(column) }} similar to '(grp|grip|arpi|stax|sco|eco)([/ ].*)?'
             then 'Area plan (no cause recorded)'
         when {{ cause_key(column) }} like 'other (snow,lightning,etc%' then 'Other (Snow, Lightning, Etc.)'
         when {{ cause_key(column) }} like 'mycotoxin%' then 'Mycotoxin'
