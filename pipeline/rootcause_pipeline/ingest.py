@@ -275,7 +275,8 @@ def drought_monitor(fetch: FetchDrought, today: date):
 
 def ingest(database: Path, *, live: bool) -> None:
     """Replace the `raw` tables (losses, premiums, counties, drought) from the real sources or the fixtures."""
-    years = list(range(FIRST_YEAR, date.today().year + 1)) if live else [2012]
+    # RMA publishes a crop year's files after the year ends, so stop at last year.
+    years = list(range(FIRST_YEAR, date.today().year)) if live else [2012]
     pipeline = dlt.pipeline("rma", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
     pipeline.run(rma(years, fetch_live if live else fetch_fixture))
     pipeline = dlt.pipeline("rma_premiums", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
