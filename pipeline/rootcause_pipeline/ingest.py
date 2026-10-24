@@ -1,4 +1,4 @@
-"""Load RMA cause-of-loss files, Census county boundaries and Drought Monitor maps for Iowa into DuckDB with dlt."""
+"""Load RMA cause-of-loss and summary-of-business files, county boundaries and drought maps for Iowa with dlt."""
 
 import io
 import json
@@ -15,6 +15,9 @@ URL = "https://pubfs-rma.fpac.usda.gov/pub/Web_Data_Files/Summary_of_Business/ca
 TIGERWEB_URL = (
     "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query"
     "?where=STATE='19'&outFields=GEOID,NAME&returnGeometry=true&maxAllowableOffset=0.005&outSR=4326&f=geojson"
+)
+PREMIUMS_URL = (
+    "https://pubfs-rma.fpac.usda.gov/pub/Web_Data_Files/Summary_of_Business/state_county_crop/sobtpu_{year}.zip"
 )
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 FIRST_YEAR = 2001
@@ -52,27 +55,65 @@ COLUMNS = [
     "indemnity_amount",
     "loss_ratio",
 ]
-STATE = COLUMNS.index("state_abbreviation")
+# The 27 pipe-delimited fields of the summary of business, no header row, lines ended by a bare CR
+# (SOBTPU_External_All_Years.pdf).
+PREMIUM_COLUMNS = [
+    "commodity_year",
+    "state_code",
+    "state_name",
+    "state_abbreviation",
+    "county_code",
+    "county_name",
+    "commodity_code",
+    "commodity_name",
+    "insurance_plan_code",
+    "insurance_plan_abbreviation",
+    "coverage_category",
+    "coverage_level",
+    "delivery_type",
+    "type_code",
+    "type_name",
+    "practice_code",
+    "practice_name",
+    "unit_structure_code",
+    "unit_structure_name",
+    "net_reporting_level_amount",
+    "reporting_level_type",
+    "liability_amount",
+    "total_premium_amount",
+    "subsidy_amount",
+    "indemnity_amount",
+    "loss_ratio",
+    "endorsed_companion_acres",
+]
 
 COUNTY_COLUMNS = ["geoid", "county_name", "geometry_json"]  # geometry_json is the GeoJSON geometry as text
 
 Fetch = Callable[[int], bytes | None]
 
 
-def fetch_fixture(year: int) -> bytes | None:
-    path = FIXTURES / f"colsom_{year}.zip"
+def fetch_fixture(year: int, prefix: str = "colsom") -> bytes | None:
+    path = FIXTURES / f"{prefix}_{year}.zip"
     return path.read_bytes() if path.exists() else None
 
 
-def fetch_live(year: int) -> bytes | None:
+def fetch_premiums_fixture(year: int) -> bytes | None:
+    return fetch_fixture(year, "sobtpu")
+
+
+def fetch_live(year: int, url: str = URL) -> bytes | None:
     """The year's zip from RMA, or None if RMA hasn't published it yet."""
     try:
-        with urllib.request.urlopen(URL.format(year=year), timeout=120) as response:
+        with urllib.request.urlopen(url.format(year=year), timeout=120) as response:
             return response.read()
     except urllib.error.HTTPError as error:
         if error.code == 404:
             return None
         raise
+
+
+def fetch_premiums_live(year: int) -> bytes | None:
+    return fetch_live(year, PREMIUMS_URL)
 
 
 def fetch_fixture_boundaries() -> bytes:
@@ -84,14 +125,14 @@ def fetch_live_boundaries() -> bytes:
         return response.read()
 
 
-def iowa_rows(archive: bytes) -> Iterator[dict[str, str]]:
+def iowa_rows(archive: bytes, columns: list[str] = COLUMNS) -> Iterator[dict[str, str]]:
     with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
         [name] = zipped.namelist()
         with zipped.open(name) as lines:
             for line in io.TextIOWrapper(lines, encoding="latin-1"):
                 fields = line.rstrip("\r\n").split("|")
-                if fields[STATE].strip() == "IA":
-                    yield dict(zip(COLUMNS, fields, strict=True))
+                if fields[columns.index("state_abbreviation")].strip() == "IA":
+                    yield dict(zip(columns, fields, strict=True))
 
 
 @dlt.source(name="rma")
@@ -108,6 +149,24 @@ def rma(years: list[int], fetch: Fetch):
             yield from iowa_rows(archive)
 
     return cause_of_loss
+
+
+@dlt.source(name="rma_premiums")
+def rma_premiums(years: list[int], fetch: Fetch):
+    @dlt.resource(
+        name="summary_of_business",
+        write_disposition="replace",
+        columns={c: {"data_type": "text"} for c in PREMIUM_COLUMNS},
+    )
+    def summary_of_business() -> Iterator[dict[str, str]]:
+        for year in years:
+            archive = fetch(year)
+            if archive is None:
+                print(f"no sobtpu_{year}.zip yet; skipping")
+                continue
+            yield from iowa_rows(archive, PREMIUM_COLUMNS)
+
+    return summary_of_business
 
 
 @dlt.source(name="tigerweb")
@@ -200,10 +259,12 @@ def drought_monitor(fetch: FetchDrought, today: date):
 
 
 def ingest(database: Path, *, live: bool) -> None:
-    """Replace `raw.cause_of_loss`, `raw.counties` and `raw.drought` from the real sources or the fixtures."""
+    """Replace the `raw` tables (losses, premiums, counties, drought) from the real sources or the fixtures."""
     years = list(range(FIRST_YEAR, date.today().year + 1)) if live else [2012]
     pipeline = dlt.pipeline("rma", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
     pipeline.run(rma(years, fetch_live if live else fetch_fixture))
+    pipeline = dlt.pipeline("rma_premiums", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
+    pipeline.run(rma_premiums(years, fetch_premiums_live if live else fetch_premiums_fixture))
     pipeline = dlt.pipeline("tigerweb", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")
     pipeline.run(tigerweb(fetch_live_boundaries if live else fetch_fixture_boundaries))
     pipeline = dlt.pipeline("drought_monitor", destination=dlt.destinations.duckdb(str(database)), dataset_name="raw")

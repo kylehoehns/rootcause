@@ -8,3 +8,5 @@ sources:
         description: Iowa county boundaries from Census TIGERweb, one per feature. geometry_json is GeoJSON text.
       - name: drought
         description: US Drought Monitor county statistics (statisticsType=2) for Iowa, one row per county per map date.
+      - name: summary_of_business
+        description: RMA summary-of-business rows for Iowa, one per row of the sobtpu_<year> files.

@@ -15,7 +15,7 @@ LOSSES = [
     (2012, "19001", "CORN", "Drought", 53473.0),
     (2012, "19001", "FORAGE PRODUCTION", "Drought", 8463.0),
     (2012, "19001", "FORAGE SEEDING", "Drought", 20235.0),
-    (2012, "19153", "All Other Crops", "Drought", 1541.0),
+    (2012, "19153", "ALL OTHER CROPS", "Drought", 1541.0),
     (2012, "19153", "CORN", "Cold Wet Weather", 2817.0),
     (2012, "19153", "CORN", "Decline in Price", 98367.56),
     (2012, "19153", "CORN", "Drought", 3244918.58),
