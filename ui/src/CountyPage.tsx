@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { payoutsByYearAndCause, topCrops, worstYears } from "./county";
 import { type Data, load } from "./data";
 import { dollars } from "./dollars";
-import { FIRST_YEAR, filtersFromSearch, filtersToSearch } from "./filters";
+import { FIRST_YEAR, filtersFromSearch, filtersToSearch, withKnownCause } from "./filters";
 
 export function CountyPage({ fips }: { fips: string }) {
   const [data, setData] = useState<Data>();
@@ -22,7 +22,14 @@ export function CountyPage({ fips }: { fips: string }) {
 
 function County({ data, fips }: { data: Data; fips: string }) {
   const latestYear = useMemo(() => Math.max(FIRST_YEAR, ...data.losses.map((loss) => loss.year)), [data]);
-  const filters = useMemo(() => filtersFromSearch(window.location.search, latestYear), [latestYear]);
+  const filters = useMemo(
+    () =>
+      withKnownCause(
+        filtersFromSearch(window.location.search, latestYear),
+        data.losses.map((loss) => loss.cause),
+      ),
+    [data, latestYear],
+  );
   const search = filtersToSearch(filters, latestYear);
   const feature = data.counties.features.find((county) => county.properties.county_fips === fips);
   const byYear = useMemo(() => payoutsByYearAndCause(data.losses, fips, filters), [data, fips, filters]);

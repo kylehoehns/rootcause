@@ -2,7 +2,7 @@ import * as Plot from "@observablehq/plot";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Data, load } from "./data";
 import { dollars } from "./dollars";
-import { FIRST_YEAR, type Filters, filtersFromSearch, filtersToSearch } from "./filters";
+import { FIRST_YEAR, type Filters, filtersFromSearch, filtersToSearch, withKnownCause } from "./filters";
 import { lossRatios } from "./lossRatio";
 import { rewind } from "./rewind";
 
@@ -23,14 +23,16 @@ export function MapPage() {
 
 function CountyMap({ data }: { data: Data }) {
   const latestYear = useMemo(() => Math.max(FIRST_YEAR, ...data.losses.map((loss) => loss.year)), [data]);
-  const [filters, setFilters] = useState(() => filtersFromSearch(window.location.search, latestYear));
+  const causes = useMemo(() => unique(data.losses.map((loss) => loss.cause)), [data]);
+  const [filters, setFilters] = useState(() =>
+    withKnownCause(filtersFromSearch(window.location.search, latestYear), causes),
+  );
   const update = (change: Partial<Filters>) => {
     const next = filtersFromSearch(filtersToSearch({ ...filters, ...change }, latestYear), latestYear);
     window.history.replaceState(null, "", `/${filtersToSearch(next, latestYear)}`);
     setFilters(next);
   };
   const years = Array.from({ length: latestYear - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
-  const causes = useMemo(() => unique(data.losses.map((loss) => loss.cause)), [data]);
   const crops = useMemo(() => unique(data.premiums.map((premium) => premium.crop)), [data]);
   const { counties, iowa } = useMemo(() => lossRatios(data.losses, data.premiums, filters), [data, filters]);
   const search = filtersToSearch(filters, latestYear);
