@@ -14,7 +14,7 @@ const counterClockwise = [
 
 test("exterior rings are wound clockwise, the way d3 fills them", () => {
   const [exterior] = rewind({ type: "Polygon", coordinates: [counterClockwise] }).coordinates;
-  expect(area(exterior ?? [])).toBeLessThan(0);
+  expect(exterior).toEqual([...counterClockwise].reverse());
 });
 
 test("holes are wound the other way", () => {
