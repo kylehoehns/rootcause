@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "county-losses.schema.json",
+  "title": "CountyLosses",
+  "description": "Crop insurance indemnity per year, county, crop and cause of loss, from RMA's cause-of-loss files. Published by the pipeline as county-losses.json; the UI reads it.",
+  "type": "array",
+  "items": {
+    "title": "CountyLoss",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["year", "county_fips", "crop", "cause", "indemnity"],
+    "properties": {
+      "year": { "type": "integer", "description": "Commodity (crop) year." },
+      "county_fips": { "type": "string", "pattern": "^[0-9]{5}$", "description": "State and county FIPS code, e.g. 19153." },
+      "crop": { "type": "string", "description": "Commodity name as RMA records it, e.g. CORN." },
+      "cause": { "type": "string", "description": "Cause of loss as RMA records it, e.g. Drought." },
+      "indemnity": { "type": "number", "description": "Dollars and cents paid for losses. Unique per year, county_fips, crop and cause." }
+    }
+  }
+}

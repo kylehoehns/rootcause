@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "types": "json2ts -i ../contracts/county-indemnity.schema.json -o src/contracts.ts --bannerComment '// Generated from contracts/*.schema.json by `pnpm types`. Do not edit.'",
+    "types": "json2ts -i ../contracts/county-losses.schema.json -o src/contracts.ts --bannerComment '// Generated from contracts/*.schema.json by `pnpm types`. Do not edit.'",
     "build": "pnpm types && tsc --noEmit && vite build",
     "lint": "biome check .",
     "test": "vitest run",

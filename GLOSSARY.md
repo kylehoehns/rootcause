@@ -1,6 +1,6 @@
 # Glossary
 
-- **Indemnity**: money crop insurance paid a farmer for a loss. RMA's "Indemnity Amount". Whole dollars here.
+- **Indemnity**: money crop insurance paid a farmer for a loss. RMA's "Indemnity Amount". Dollars and cents here; the UI rounds only for display.
 - **Cause of loss**: the peril RMA records for a loss (drought, hail, excess moisture…).
 - **Commodity year** (shown as "year"): the crop year a policy covered, not necessarily the year of the loss.
 - **County FIPS**: the five-digit state + county code, e.g. `19153` for Polk County, Iowa. The key for joining sources.
