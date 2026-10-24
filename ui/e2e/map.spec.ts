@@ -24,7 +24,7 @@ test("the map colors counties by loss ratio, filters live in the URL, and a clic
 
   await county.click();
   await expect(page).toHaveURL(/\/county\/19\d{3}\?cause=Drought&crop=CORN$/);
-  await expect(page.getByRole("heading", { name: /^County 19\d{3}$/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /County$/ })).toBeVisible();
 });
 
 test("every page has the header and the credits footer", async ({ page }) => {

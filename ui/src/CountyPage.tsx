@@ -10,12 +10,7 @@ export function CountyPage({ fips }: { fips: string }) {
   useEffect(() => {
     load().then(setData);
   }, []);
-  return (
-    <>
-      <h1>County {fips}</h1>
-      {data ? <County data={data} fips={fips} /> : <p>Loading…</p>}
-    </>
-  );
+  return data ? <County data={data} fips={fips} /> : <p>Loading…</p>;
 }
 
 function County({ data, fips }: { data: Data; fips: string }) {
@@ -53,7 +48,10 @@ function County({ data, fips }: { data: Data; fips: string }) {
   const worst = worstYears(data.losses, data.premiums, fips, filters);
   return (
     <>
-      <h2>{feature.properties.county_name} County</h2>
+      <h1>{feature.properties.county_name}</h1>
+      <p>
+        <small>County FIPS {fips}</small>
+      </p>
       <p>
         <a href={`/${search}`}>← Back to the map</a>
       </p>
