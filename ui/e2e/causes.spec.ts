@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("the cause filter lists each cause once, under its cleaned name", async ({ page }) => {
   await page.goto("/");
+  await expect(page.locator("main svg [aria-label=geo] path").first()).toBeVisible();
   const options = await page.getByLabel("Cause").locator("option").allTextContents();
 
   expect(options).toContain("Other (Snow, Lightning, Etc.)");
