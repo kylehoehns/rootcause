@@ -8,5 +8,5 @@ apply_dbt_builtins = True
 load_macros_from_path = macros
 
 [sqlfluff:rules:references.keywords]
-# "year" is the published field name (contracts/county-indemnity.schema.json).
+# "year" is the published field name (contracts/county-losses.schema.json).
 ignore_words = year
