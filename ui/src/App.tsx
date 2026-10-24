@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CountyPage } from "./CountyPage";
+import { DroughtPage } from "./DroughtPage";
 import { MapPage } from "./MapPage";
 
 const Layout = ({ children }: { children: ReactNode }) => (
@@ -27,7 +28,7 @@ function Page() {
   const path = window.location.pathname;
   const county = path.match(/^\/county\/(\d{5})\/?$/);
   if (county?.[1]) return <CountyPage fips={county[1]} />;
-  if (path.startsWith("/drought")) return <h1>Drought</h1>;
+  if (path.startsWith("/drought")) return <DroughtPage />;
   return <MapPage />;
 }
 
