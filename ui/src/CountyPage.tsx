@@ -7,10 +7,17 @@ import { FIRST_YEAR, filtersFromSearch, filtersToSearch } from "./filters";
 
 export function CountyPage({ fips }: { fips: string }) {
   const [data, setData] = useState<Data>();
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
-    load().then(setData);
+    load().then(setData, () => setFailed(true));
   }, []);
-  return data ? <County data={data} fips={fips} /> : <p>Loading…</p>;
+  if (data) return <County data={data} fips={fips} />;
+  return (
+    <>
+      <h1>Iowa county</h1>
+      <p>{failed ? "Could not load the county data. Try reloading the page." : "Loading…"}</p>
+    </>
+  );
 }
 
 function County({ data, fips }: { data: Data; fips: string }) {
@@ -42,7 +49,13 @@ function County({ data, fips }: { data: Data; fips: string }) {
     return () => plot.remove();
   }, [byYear, feature]);
 
-  if (!feature) return <p>No such Iowa county.</p>;
+  if (!feature)
+    return (
+      <>
+        <h1>Iowa county</h1>
+        <p>No such Iowa county.</p>
+      </>
+    );
 
   const crops = topCrops(data.losses, fips, filters);
   const worst = worstYears(data.losses, data.premiums, fips, filters);
