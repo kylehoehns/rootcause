@@ -11,7 +11,7 @@ pipeline-check:
 publish:
     cd pipeline && uv run python -m rootcause_pipeline --out ../ui/public/data
 
-# The same, from the real sources: downloads RMA's files for 2001 to now. Only the deploy workflow runs this.
+# The same, from the real sources: downloads RMA's files for 2001 to now and the Drought Monitor's maps. Only the deploy workflow runs this.
 publish-live:
     cd pipeline && uv run python -m rootcause_pipeline --live --out ../ui/public/data
 
