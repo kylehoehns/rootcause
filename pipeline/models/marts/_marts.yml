@@ -1,6 +1,6 @@
 # The marts are a published contract: their columns must match contracts/*.schema.json.
 models:
-  - name: county_indemnity
+  - name: county_losses
     config:
       contract: { enforced: true }
     columns:
@@ -10,7 +10,12 @@ models:
       - name: county_fips
         data_type: varchar
         data_tests: [not_null]
-      - name: county_name
+      - name: crop
         data_type: varchar
+        data_tests: [not_null]
+      - name: cause
+        data_type: varchar
+        data_tests: [not_null]
       - name: indemnity
-        data_type: bigint
+        data_type: decimal(38, 2)
+        data_tests: [not_null]

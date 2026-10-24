@@ -1,0 +1,6 @@
+sources:
+  - name: raw
+    description: Loaded by dlt (rootcause_pipeline/ingest.py) before dbt runs. Every column is text.
+    tables:
+      - name: cause_of_loss
+        description: RMA cause-of-loss rows for Iowa, one per row of the colsom_<year> files.

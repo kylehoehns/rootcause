@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
-import type { CountyIndemnity } from "./contracts";
+import type { CountyLosses } from "./contracts";
 import { dollars } from "./dollars";
+import { countyName, countyTotal } from "./losses";
+
+const POLK = "19153";
+const YEAR = 2012;
 
 export function App() {
-  const [counties, setCounties] = useState<CountyIndemnity>();
+  const [losses, setLosses] = useState<CountyLosses>();
   useEffect(() => {
-    fetch("/data/county-indemnity.json")
+    fetch("/data/county-losses.json")
       .then((response) => response.json())
-      .then(setCounties);
+      .then(setLosses);
   }, []);
-  const county = counties?.[0];
   return (
     <main>
       <h1>rootcause</h1>
-      {county && (
+      {losses && (
         <p>
-          Crop insurance paid for losses in {county.county_name} County, {county.year}:{" "}
-          <strong>{dollars(county.indemnity)}</strong>
+          Crop insurance paid for losses in {countyName(POLK)} County, {YEAR}:{" "}
+          <strong>{dollars(countyTotal(losses, POLK, YEAR))}</strong>
         </p>
       )}
     </main>
