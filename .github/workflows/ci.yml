@@ -1,14 +1,15 @@
 # The required `ci` check: `just check`, as agents and people run it locally.
-# Runs on pull_request only (never pull_request_target), so fork PRs get no secrets and a read-only token.
+# Comments the result on the PR, so contributors see it without opening Actions.
 name: ci
 
 on:
-  pull_request:
+  pull_request_target:
   push:
     branches: [main]
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -20,6 +21,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
 
@@ -44,3 +47,9 @@ jobs:
           name: screenshots
           path: ui/test-results/
           retention-days: 14
+
+      - name: Comment the result
+        if: always() && github.event_name == 'pull_request_target'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment ${{ github.event.pull_request.number }} --body "ci: ${{ job.status }}"
