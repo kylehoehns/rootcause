@@ -133,13 +133,15 @@ def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Itera
                 if not line.strip():
                     continue
                 fields = line.rstrip("\r\n").split("|")
+                state = columns.index("state_abbreviation")
+                if len(fields) > state and fields[state].strip() != "IA":
+                    continue
                 if len(fields) != len(columns):
                     raise ValueError(
                         f"{file} ({year}), line {number}: expected {len(columns)} fields but found {len(fields)}; "
                         "RMA changed the layout for this year"
                     )
-                if fields[columns.index("state_abbreviation")].strip() == "IA":
-                    yield dict(zip(columns, fields, strict=True))
+                yield dict(zip(columns, fields, strict=True))
 
 
 @dlt.source(name="rma")

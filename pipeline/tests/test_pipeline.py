@@ -195,6 +195,12 @@ def test_a_year_with_a_different_field_layout_fails_naming_the_year_and_file():
         list(iowa_rows(archive, PREMIUM_COLUMNS, 2013, "sobtpu_2013.zip"))
 
 
+def test_an_odd_line_for_another_state_is_not_a_layout_change():
+    columns = ["year", "state_code", "state_name", "state_abbreviation", "county_code"]
+    archive = zipped("2013|31|Nebraska|NE|001|extra\r\n2013|19|Iowa|IA|001\r\n")
+    assert [row["county_code"] for row in iowa_rows(archive, columns, 2013, "x.zip")] == ["001"]
+
+
 def test_blank_lines_are_not_a_layout_change():
     archive = zipped("2013|19|Iowa|IA|001\r\n\r\n")
     assert list(
