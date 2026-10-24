@@ -252,7 +252,7 @@ def drought_rows(fetch: FetchDrought, today: date) -> Iterator[dict[str, str]]:
             print(f"no Drought Monitor map for {map_date}; skipping")
         for row in rows:
             yield {"map_date": map_date.isoformat(), "county_fips": row["fips"]} | {
-                k: str(row[k]) for k in DROUGHT_FIELDS[2:]
+                k: "" if row[k] is None else str(row[k]) for k in DROUGHT_FIELDS[2:]
             }
 
 
