@@ -3,7 +3,8 @@ import type { Filters } from "./filters";
 
 export type Ratio = { indemnity: number; premium: number; ratio: number | null };
 
-const inYears = (filters: Filters) => (row: { year: number }) => row.year >= filters.from && row.year <= filters.to;
+/** Whether a row falls in the selected years. */
+const inYears = (filters: Filters) => (row: { year: number }) => filters.from <= row.year && row.year < filters.to;
 const ratio = (indemnity: number, premium: number): Ratio => ({
   indemnity,
   premium,
