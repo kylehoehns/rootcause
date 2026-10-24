@@ -1,0 +1,11 @@
+name: rootcause
+version: "0.1.0"
+profile: rootcause
+model-paths: [models]
+seed-paths: [seeds]
+test-paths: [data_tests]  # tests/ is pytest's
+target-path: target
+models:
+  rootcause:
+    marts:
+      +materialized: table

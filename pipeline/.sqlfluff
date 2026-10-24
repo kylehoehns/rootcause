@@ -1,0 +1,11 @@
+[sqlfluff]
+dialect = duckdb
+templater = jinja
+max_line_length = 120
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+
+[sqlfluff:rules:references.keywords]
+# "year" is the published field name (contracts/county-indemnity.schema.json).
+ignore_words = year

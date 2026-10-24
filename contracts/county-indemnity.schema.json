@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "county-indemnity.schema.json",
+  "title": "CountyIndemnity",
+  "description": "Crop insurance paid out per county per year. Published by the pipeline as county-indemnity.json; the UI reads it.",
+  "type": "array",
+  "items": {
+    "title": "CountyYear",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["year", "county_fips", "county_name", "indemnity"],
+    "properties": {
+      "year": { "type": "integer", "description": "Commodity (crop) year." },
+      "county_fips": { "type": "string", "pattern": "^[0-9]{5}$", "description": "State and county FIPS code, e.g. 19153." },
+      "county_name": { "type": "string" },
+      "indemnity": { "type": "integer", "description": "Dollars paid for losses, all crops and causes." }
+    }
+  }
+}

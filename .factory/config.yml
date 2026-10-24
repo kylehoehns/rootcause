@@ -1,0 +1,56 @@
+# How the factory treats this repo (factory-kit). Read from main, never from a PR, so a PR can't loosen the rules
+# that judge it. Changing this file is itself high risk.
+
+check: just check
+autoMerge: "on"
+
+maintainers: [kylehoehns]
+factoryBot: kh-factory-bot[bot]
+
+# The factory's own controls: agents may never change these.
+protected: [.github/, .factory/, .agents/, .claude/, scripts/]
+
+sandbox:
+  docker: false
+  # Kept between runs on the maintainer's machine, so a run doesn't download every tool and package again.
+  caches:
+    - { name: mise, path: /home/agent/.local/share/mise }
+    - { name: uv, path: /home/agent/.cache/uv }
+    - { name: pnpm, path: /home/agent/.local/share/pnpm }
+    - { name: playwright, path: /home/agent/.cache/ms-playwright }
+
+# low    -> all checks green, then the factory merges it
+# medium -> the maintainer approves the head commit
+# high   -> the maintainer approves, and the independent second opinion has read the head commit
+# Anything no rule mentions is medium. Paths are globs where "*" also matches "/".
+risk:
+  low:
+    paths: ["docs/*", "*.md"]
+    exclude: [AGENTS.md, GLOSSARY.md, "docs/adr/*", "docs/agents/*", ".agents/*"]
+    maxChangedLines: 100
+    testPaths: ["pipeline/tests/*", "ui/src/*.test.ts", "ui/e2e/*"]
+    reviewedProductionPaths: ["pipeline/rootcause_pipeline/*", "pipeline/models/*", "pipeline/seeds/*", "ui/src/*"]
+    reviewedMaxProductionLines: 200
+  medium:
+    # Changing or deleting an existing journey (adding new ones is ordinary work).
+    existingPaths: ["ui/e2e/*"]
+  high:
+    paths:
+      # The published contract between the pipeline and the UI (ADR 0001).
+      - "contracts/*"
+      - "pipeline/models/marts/_marts.yml"
+      # How it's deployed, and what it's built with.
+      - "ui/wrangler.jsonc"
+      - "mise.toml"
+      - "justfile"
+      - "pipeline/pyproject.toml"
+      - "pipeline/uv.lock"
+      - "ui/package.json"
+      - "ui/pnpm-lock.yaml"
+      - "ui/pnpm-workspace.yaml"
+      # The factory's own controls.
+      - ".github/*"
+      - ".factory/*"
+      - ".agents/*"
+      - ".claude/*"
+      - "scripts/*"

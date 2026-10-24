@@ -1,0 +1,28 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# dbt and DuckDB
+pipeline/target/
+pipeline/logs/
+pipeline/dbt_packages/
+pipeline/.user.yml
+*.duckdb
+*.duckdb.wal
+
+# UI
+node_modules/
+ui/dist/
+ui/public/data/
+ui/src/contracts.ts
+ui/test-results/
+ui/playwright-report/
+
+# Cloudflare
+.wrangler/
+
+# Factory
+.factory/runs/
+.sandcastle/

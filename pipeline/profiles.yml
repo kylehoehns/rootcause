@@ -1,0 +1,7 @@
+rootcause:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('ROOTCAUSE_DB', 'rootcause.duckdb') }}"
+      threads: 4
