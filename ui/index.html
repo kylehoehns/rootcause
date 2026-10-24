@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>rootcause</title>
+      <style>
+      body { font-family: system-ui, sans-serif; margin: 0; color: #222; }
+      header, footer { padding: 0.75rem 1rem; background: #f3f3f0; }
+      header { display: flex; gap: 1.5rem; align-items: baseline; }
+      header nav { display: flex; gap: 1rem; }
+      main { padding: 0 1rem 1rem; max-width: 800px; margin: 0 auto; }
+      .brand { font-weight: bold; }
+      .filters { display: flex; flex-wrap: wrap; gap: 1rem; }
+      .filters label { display: flex; flex-direction: column; font-size: 0.85rem; }
+      .tip { position: fixed; pointer-events: none; white-space: pre; background: #fff; border: 1px solid #999; padding: 0.4rem 0.6rem; font-size: 0.85rem; box-shadow: 0 1px 4px #0003; }
+      footer { font-size: 0.85rem; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

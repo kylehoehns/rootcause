@@ -1,27 +1,38 @@
-import { useEffect, useState } from "react";
-import type { CountyLosses } from "./contracts";
-import { dollars } from "./dollars";
-import { countyName, countyTotal } from "./losses";
+import type { ReactNode } from "react";
+import { CountyPage } from "./CountyPage";
+import { MapPage } from "./MapPage";
 
-const POLK = "19153";
-const YEAR = 2012;
+const Layout = ({ children }: { children: ReactNode }) => (
+  <>
+    <header>
+      <a href="/" className="brand">
+        rootcause
+      </a>
+      <nav>
+        <a href="/">Map</a>
+        <a href="/drought">Drought</a>
+      </nav>
+    </header>
+    <main>{children}</main>
+    <footer>
+      Crop insurance data:{" "}
+      <a href="https://www.rma.usda.gov/tools-reports/summary-of-business">USDA Risk Management Agency</a>. Drought:{" "}
+      <a href="https://droughtmonitor.unl.edu/">U.S. Drought Monitor</a>, map courtesy of{" "}
+      <a href="https://drought.unl.edu/">NDMC</a>.
+    </footer>
+  </>
+);
 
-export function App() {
-  const [losses, setLosses] = useState<CountyLosses>();
-  useEffect(() => {
-    fetch("/data/county-losses.json")
-      .then((response) => response.json())
-      .then(setLosses);
-  }, []);
-  return (
-    <main>
-      <h1>rootcause</h1>
-      {losses && (
-        <p>
-          Crop insurance paid for losses in {countyName(POLK)} County, {YEAR}:{" "}
-          <strong>{dollars(countyTotal(losses, POLK, YEAR))}</strong>
-        </p>
-      )}
-    </main>
-  );
+function Page() {
+  const path = window.location.pathname;
+  const county = path.match(/^\/county\/(\d{5})\/?$/);
+  if (county?.[1]) return <CountyPage fips={county[1]} />;
+  if (path.startsWith("/drought")) return <h1>Drought</h1>;
+  return <MapPage />;
 }
+
+export const App = () => (
+  <Layout>
+    <Page />
+  </Layout>
+);

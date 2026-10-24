@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "types": "json2ts -i ../contracts/county-losses.schema.json -o src/contracts.ts --bannerComment '// Generated from contracts/*.schema.json by `pnpm types`. Do not edit.'",
+    "types": "(echo '// Generated from contracts/*.schema.json by `pnpm types`. Do not edit.'; for schema in ../contracts/*.schema.json; do json2ts -i $schema --bannerComment ''; done) > src/contracts.ts",
     "build": "pnpm types && tsc --noEmit && vite build",
     "lint": "biome check .",
     "test": "vitest run",
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@observablehq/plot": "^0.6.17",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
