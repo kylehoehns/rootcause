@@ -14,8 +14,13 @@ def run_published(tmp_path):
 
 
 LOSSES = [
+    (2012, "19001", "CORN", "Area plan (no cause recorded)", 896.0),
     (2012, "19001", "CORN", "Decline in Price", 153674.4),
     (2012, "19001", "CORN", "Drought", 53473.0),
+    (2012, "19001", "CORN", "Failure of Irrigation Supply", 96.0),
+    (2012, "19001", "CORN", "Mycotoxin", 24.0),
+    (2012, "19001", "CORN", "Not recorded", 1024.0),
+    (2012, "19001", "CORN", "Other (Snow, Lightning, Etc.)", 7.0),
     (2012, "19001", "FORAGE PRODUCTION", "Drought", 8463.0),
     (2012, "19001", "FORAGE SEEDING", "Drought", 20235.0),
     (2012, "19153", "ALL OTHER CROPS", "Drought", 1541.0),
@@ -210,3 +215,19 @@ def test_a_group_with_only_blank_premiums_is_left_out(tmp_path):
     published = run_published(tmp_path)
     premiums = json.loads(published["county-premiums.json"].read_text())
     assert not [r for r in premiums if (r["county_fips"], r["crop"]) == ("19153", "SWINE")]
+
+
+def test_cause_spellings_merge_and_plan_names_and_blanks_get_their_own_causes(tmp_path):
+    # The fixtures hold Adair corn rows for each variant RMA publishes, each with a distinct power-of-two amount.
+    published = run_published(tmp_path)
+    losses = json.loads(published["county-losses.json"].read_text())
+    adair_corn = {r["cause"]: r["indemnity"] for r in losses if (r["county_fips"], r["crop"]) == ("19001", "CORN")}
+    assert adair_corn == {
+        "Decline in Price": 153674.4,
+        "Drought": 53473.0,
+        "Other (Snow, Lightning, Etc.)": 1 + 2 + 4,
+        "Mycotoxin": 8 + 16,
+        "Failure of Irrigation Supply": 32 + 64,
+        "Area plan (no cause recorded)": 128 + 256 + 512,
+        "Not recorded": 1024,
+    }
