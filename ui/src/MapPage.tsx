@@ -1,21 +1,10 @@
 import * as Plot from "@observablehq/plot";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CountyLosses, CountyPremiums, IowaCounties } from "./contracts";
+import { type Data, load } from "./data";
 import { dollars } from "./dollars";
 import { FIRST_YEAR, type Filters, filtersFromSearch, filtersToSearch } from "./filters";
 import { lossRatios } from "./lossRatio";
 import { rewind } from "./rewind";
-
-type Data = { losses: CountyLosses; premiums: CountyPremiums; counties: IowaCounties };
-
-const load = async (): Promise<Data> => {
-  const [losses, premiums, counties] = await Promise.all(
-    ["county-losses.json", "county-premiums.json", "iowa-counties.geojson"].map((file) =>
-      fetch(`/data/${file}`).then((response) => response.json()),
-    ),
-  );
-  return { losses, premiums, counties };
-};
 
 const unique = (values: string[]) => [...new Set(values)].sort();
 
