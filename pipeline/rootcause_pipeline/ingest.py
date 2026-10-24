@@ -130,6 +130,8 @@ def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Itera
         [name] = zipped.namelist()
         with zipped.open(name) as lines:
             for number, line in enumerate(io.TextIOWrapper(lines, encoding="latin-1"), start=1):
+                if not line.strip():
+                    continue
                 fields = line.rstrip("\r\n").split("|")
                 if len(fields) != len(columns):
                     raise ValueError(

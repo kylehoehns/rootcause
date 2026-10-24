@@ -179,6 +179,13 @@ def test_a_year_with_a_different_field_layout_fails_naming_the_year_and_file():
         list(iowa_rows(archive, PREMIUM_COLUMNS, 2013, "sobtpu_2013.zip"))
 
 
+def test_blank_lines_are_not_a_layout_change():
+    archive = zipped("2013|19|Iowa|IA|001\r\n\r\n")
+    assert list(
+        iowa_rows(archive, ["year", "state_code", "state_name", "state_abbreviation", "county_code"], 2013, "x.zip")
+    ) == [{"year": "2013", "state_code": "19", "state_name": "Iowa", "state_abbreviation": "IA", "county_code": "001"}]
+
+
 def test_blank_amounts_add_nothing_to_the_county_totals(tmp_path):
     # The fixtures hold a Polk corn row with every amount blank in both sources.
     published = run_published(tmp_path)
