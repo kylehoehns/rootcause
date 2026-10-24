@@ -34,6 +34,7 @@ LOSSES = [
     (2012, "19153", "SOYBEANS", "Excess Moisture/Precipitation/Rain", 5361.0),
     (2012, "19153", "SOYBEANS", "Flood", 15533.0),
     (2012, "19153", "SOYBEANS", "Heat", 241.0),
+    (2012, "19155", "CORN", "Decline in Price", 1250.75),
     (2012, "19169", "CORN", "Decline in Price", 63489.95),
     (2012, "19169", "CORN", "Drought", 351498.0),
 ]
@@ -58,6 +59,7 @@ PREMIUMS = [
     (2012, "19153", "HYBRID CORN SEED", 317503),
     (2012, "19153", "OATS", 222),
     (2012, "19153", "SOYBEANS", 1528130),
+    (2012, "19155", "CORN", 1250),
     (2012, "19169", "CORN", 6535933),
     (2012, "19169", "FORAGE PRODUCTION", 1739),
     (2012, "19169", "HYBRID CORN SEED", 953078),
@@ -105,8 +107,17 @@ def test_the_county_boundaries_cover_every_county_in_the_loss_data(tmp_path):
         f["properties"]["county_fips"] for f in json.loads(published["iowa-counties.geojson"].read_text())["features"]
     }
     losses = {r["county_fips"] for r in json.loads(published["county-losses.json"].read_text())}
-    assert losses == {"19001", "19153", "19169"}
+    assert losses == {"19001", "19153", "19155", "19169"}
     assert losses <= boundaries
+
+
+def test_west_pottawattamie_adds_to_pottawattamie_and_all_other_counties_is_dropped(tmp_path):
+    published = run_published(tmp_path)
+    losses = json.loads(published["county-losses.json"].read_text())
+    premiums = json.loads(published["county-premiums.json"].read_text())
+    for rows, field, total in ((losses, "indemnity", 1250.75), (premiums, "premium", 1250)):
+        assert {r["county_fips"] for r in rows}.isdisjoint({"19156", "19999"})
+        assert sum(r[field] for r in rows if r["county_fips"] == "19155") == total  # 155 (1000.5) + 156 (250.25)
 
 
 def test_the_latest_maps_week_number_picks_the_same_week_of_every_earlier_year():
