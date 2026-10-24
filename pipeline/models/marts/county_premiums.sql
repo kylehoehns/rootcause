@@ -6,3 +6,5 @@ select
     cast(round(sum(premium)) as bigint) as premium
 from {{ ref('stg_summary_of_business') }}
 group by year, county_fips, crop
+-- RMA leaves premium blank for some groups (livestock, All Other Crops); those have no premium to publish.
+having sum(premium) is not null

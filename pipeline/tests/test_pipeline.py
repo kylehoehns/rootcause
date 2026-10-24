@@ -1,9 +1,12 @@
 import io
 import json
+import zipfile
 from datetime import date
 
+import pytest
+
 from rootcause_pipeline.__main__ import run
-from rootcause_pipeline.ingest import fetch_drought_live, matching_map_dates
+from rootcause_pipeline.ingest import PREMIUM_COLUMNS, fetch_drought_live, iowa_rows, matching_map_dates
 
 
 def run_published(tmp_path):
@@ -161,3 +164,38 @@ def test_drought_requests_ask_for_json(monkeypatch):
         and "statisticsType=2" in seen[0].full_url
         and "aoi=IA" in seen[0].full_url
     )
+
+
+def zipped(text):
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("data.txt", text)
+    return buffer.getvalue()
+
+
+def test_a_year_with_a_different_field_layout_fails_naming_the_year_and_file():
+    archive = zipped("2013|19|Iowa|IA|001|Adair|extra\r")
+    with pytest.raises(ValueError, match=r"sobtpu_2013\.zip \(2013\).*expected 27 fields but found 7"):
+        list(iowa_rows(archive, PREMIUM_COLUMNS, 2013, "sobtpu_2013.zip"))
+
+
+def test_blank_lines_are_not_a_layout_change():
+    archive = zipped("2013|19|Iowa|IA|001\r\n\r\n")
+    assert list(
+        iowa_rows(archive, ["year", "state_code", "state_name", "state_abbreviation", "county_code"], 2013, "x.zip")
+    ) == [{"year": "2013", "state_code": "19", "state_name": "Iowa", "state_abbreviation": "IA", "county_code": "001"}]
+
+
+def test_blank_amounts_add_nothing_to_the_county_totals(tmp_path):
+    # The fixtures hold a Polk corn row with every amount blank in both sources.
+    published = run_published(tmp_path)
+    premiums = json.loads(published["county-premiums.json"].read_text())
+    polk_corn = next(r for r in premiums if (r["county_fips"], r["crop"]) == ("19153", "CORN"))
+    assert polk_corn["premium"] == 3937322
+
+
+def test_a_group_with_only_blank_premiums_is_left_out(tmp_path):
+    # The fixtures hold a Polk swine row whose amounts are all blank, as RMA publishes livestock policies.
+    published = run_published(tmp_path)
+    premiums = json.loads(published["county-premiums.json"].read_text())
+    assert not [r for r in premiums if (r["county_fips"], r["crop"]) == ("19153", "SWINE")]
