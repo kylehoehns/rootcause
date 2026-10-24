@@ -12,23 +12,23 @@ const selected = (losses: CountyLosses, fips: string, filters: Filters) =>
       (!filters.crop || loss.crop === filters.crop),
   );
 
-/** Sums rows by a key, largest total first (ties by key, so the order is stable). */
-function sumBy<K extends string | number>(rows: { indemnity: number }[], key: (row: never) => K) {
+/** Sums payouts by a key, largest total first (ties by key, so the order is stable). */
+function sumBy<K extends string | number>(rows: CountyLosses, key: (row: CountyLosses[number]) => K) {
   const sums = new Map<K, number>();
-  for (const row of rows) sums.set(key(row as never), (sums.get(key(row as never)) ?? 0) + row.indemnity);
+  for (const row of rows) sums.set(key(row), (sums.get(key(row)) ?? 0) + row.indemnity);
   return [...sums].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
 }
 
 /** The county's crops by payouts, within the filters. */
 export function topCrops(losses: CountyLosses, fips: string, filters: Filters, limit = 5) {
-  return sumBy(selected(losses, fips, filters), (row: CountyLosses[number]) => row.crop)
+  return sumBy(selected(losses, fips, filters), (row) => row.crop)
     .slice(0, limit)
     .map(([crop, indemnity]) => ({ crop, indemnity }));
 }
 
 /** The county's years with the most payouts within the filters, each with its loss ratio (null without premium). */
 export function worstYears(losses: CountyLosses, premiums: CountyPremiums, fips: string, filters: Filters, limit = 5) {
-  return sumBy(selected(losses, fips, filters), (row: CountyLosses[number]) => row.year)
+  return sumBy(selected(losses, fips, filters), (row) => row.year)
     .slice(0, limit)
     .map(([year, indemnity]) => ({
       year,

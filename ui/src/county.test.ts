@@ -49,7 +49,7 @@ test("worst years only consider the filtered range and crop", () => {
   ]);
 });
 
-test("payouts per year are split by cause and cover every year in range", () => {
+test("payouts per year are split by cause, oldest year first, within the filters", () => {
   const rows = payoutsByYearAndCause(losses, "19153", { ...all, from: 2011 });
   expect(rows).toEqual([
     { year: 2011, cause: "Hail", indemnity: 300 },
