@@ -7,14 +7,14 @@
   "items": {
     "title": "CountyLoss",
     "type": "object",
-    "additionalProperties": false,
+    "additionalProperties": true,
     "required": ["year", "county_fips", "crop", "cause", "indemnity"],
     "properties": {
       "year": { "type": "integer", "description": "Commodity (crop) year." },
       "county_fips": { "type": "string", "pattern": "^[0-9]{5}$", "description": "State and county FIPS code, e.g. 19153." },
       "crop": { "type": "string", "description": "Commodity name as RMA records it, e.g. CORN." },
       "cause": { "type": "string", "description": "Cause of loss as RMA records it, e.g. Drought." },
-      "indemnity": { "type": "number", "description": "Dollars and cents paid for losses. Unique per year, county_fips, crop and cause." }
+      "indemnity": { "type": ["number", "null"], "description": "Dollars and cents paid for losses. Unique per year, county_fips, crop and cause." }
     }
   }
 }
