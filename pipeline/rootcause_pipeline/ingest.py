@@ -129,6 +129,7 @@ def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Itera
     state = columns.index("state_abbreviation")
     with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
         [name] = zipped.namelist()
+        found = False
         with zipped.open(name) as lines:
             for number, line in enumerate(io.TextIOWrapper(lines, encoding="latin-1"), start=1):
                 if not line.strip():
@@ -141,7 +142,12 @@ def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Itera
                         f"{file} ({year}), line {number}: expected {len(columns)} fields but found {len(fields)}; "
                         "RMA changed the layout for this year"
                     )
+                found = True
                 yield dict(zip(columns, fields, strict=True))
+    if not found:
+        raise ValueError(
+            f"{file} ({year}): no Iowa rows; RMA may have moved the state column or changed the layout for this year"
+        )
 
 
 @dlt.source(name="rma")

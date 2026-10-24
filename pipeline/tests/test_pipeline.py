@@ -261,3 +261,10 @@ def test_a_null_percent_is_ingested_as_blank_not_the_text_none():
     row |= {"d3": 0.0, "d4": 0.0}
     out = next(drought_rows(lambda start, end: [row], date(2025, 7, 2)))
     assert out["d2"] == ""
+
+
+def test_a_year_file_with_no_iowa_rows_fails_naming_the_year_and_file():
+    columns = ["year", "state_code", "state_name", "state_abbreviation", "county_code"]
+    archive = zipped("2013|Iowa|IA|19|001\r\n2013|Nebraska|NE|31|001\r\n")
+    with pytest.raises(ValueError, match=r"x\.zip \(2013\).*no Iowa rows"):
+        list(iowa_rows(archive, columns, 2013, "x.zip"))
