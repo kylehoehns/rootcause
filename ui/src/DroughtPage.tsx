@@ -38,7 +38,8 @@ const share = (value: number | undefined) => (value === undefined ? "no data" : 
 function Comparison({ data }: { data: Data }) {
   const latest = useMemo(() => data.drought.map((row) => row.map_date).reduce((a, b) => (a > b ? a : b), ""), [data]);
   const latestYear = Number(latest.slice(0, 4));
-  const worst = useMemo(() => worstYear(data.losses), [data]);
+  // The latest year's payouts are still accruing and can't be picked as a comparison.
+  const worst = useMemo(() => worstYear(data.losses.filter((loss) => loss.year < latestYear)), [data, latestYear]);
   const [year, setYear] = useState(() => compareYearFromSearch(window.location.search, latestYear));
   const choose = (next: number) => {
     const clamped = compareYearFromSearch(`?year=${next}`, latestYear);
