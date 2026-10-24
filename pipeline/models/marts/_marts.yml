@@ -32,3 +32,31 @@ models:
       - name: geometry_json
         data_type: varchar
         data_tests: [not_null]
+  - name: drought
+    config:
+      contract: { enforced: true }
+    columns:
+      - name: map_date
+        data_type: date
+        data_tests: [not_null]
+      - name: county_fips
+        data_type: varchar
+        data_tests: [not_null]
+      - name: "none"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]
+      - name: "d0"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]
+      - name: "d1"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]
+      - name: "d2"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]
+      - name: "d3"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]
+      - name: "d4"
+        data_type: decimal(5, 2)
+        data_tests: [not_null]

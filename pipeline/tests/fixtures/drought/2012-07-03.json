@@ -1,0 +1,47 @@
+[
+ {
+  "mapDate": "2012-07-03T00:00:00",
+  "fips": "19001",
+  "county": "Adair County",
+  "state": "IA",
+  "none": 0.0,
+  "d0": 100.0,
+  "d1": 0.0,
+  "d2": 0.0,
+  "d3": 0.0,
+  "d4": 0.0,
+  "validStart": "2012-07-03T00:00:00",
+  "validEnd": "2012-07-09T23:59:00",
+  "statisticFormatID": 2
+ },
+ {
+  "mapDate": "2012-07-03T00:00:00",
+  "fips": "19153",
+  "county": "Polk County",
+  "state": "IA",
+  "none": 0.0,
+  "d0": 88.21,
+  "d1": 11.79,
+  "d2": 0.0,
+  "d3": 0.0,
+  "d4": 0.0,
+  "validStart": "2012-07-03T00:00:00",
+  "validEnd": "2012-07-09T23:59:00",
+  "statisticFormatID": 2
+ },
+ {
+  "mapDate": "2012-07-03T00:00:00",
+  "fips": "19169",
+  "county": "Story County",
+  "state": "IA",
+  "none": 0.0,
+  "d0": 0.0,
+  "d1": 100.0,
+  "d2": 0.0,
+  "d3": 0.0,
+  "d4": 0.0,
+  "validStart": "2012-07-03T00:00:00",
+  "validEnd": "2012-07-09T23:59:00",
+  "statisticFormatID": 2
+ }
+]

@@ -1,6 +1,7 @@
 """Write the marts the UI reads as JSON, each checked against its schema in contracts/ first."""
 
 import json
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
@@ -10,12 +11,17 @@ from jsonschema import validate
 CONTRACTS = Path(__file__).resolve().parents[2] / "contracts"
 
 # Published file -> the mart it comes from.
-FILES = {"county-losses.json": "select * from main.county_losses order by year, county_fips, crop, cause"}
+FILES = {
+    "county-losses.json": "select * from main.county_losses order by year, county_fips, crop, cause",
+    "drought.json": "select * from main.drought order by map_date, county_fips",
+}
 GEOJSON = "iowa-counties.geojson"
 
 
 def plain(value):
     """Dollars and cents leave DuckDB as exact decimals; JSON gets them as numbers."""
+    if isinstance(value, date):
+        return value.isoformat()
     return float(value) if isinstance(value, Decimal) else value
 
 
