@@ -192,3 +192,10 @@ def test_blank_amounts_add_nothing_to_the_county_totals(tmp_path):
     premiums = json.loads(published["county-premiums.json"].read_text())
     polk_corn = next(r for r in premiums if (r["county_fips"], r["crop"]) == ("19153", "CORN"))
     assert polk_corn["premium"] == 3937322
+
+
+def test_a_group_with_only_blank_premiums_is_left_out(tmp_path):
+    # The fixtures hold a Polk swine row whose amounts are all blank, as RMA publishes livestock policies.
+    published = run_published(tmp_path)
+    premiums = json.loads(published["county-premiums.json"].read_text())
+    assert not [r for r in premiums if (r["county_fips"], r["crop"]) == ("19153", "SWINE")]
