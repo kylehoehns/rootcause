@@ -231,3 +231,11 @@ def test_cause_spellings_merge_and_plan_names_and_blanks_get_their_own_causes(tm
         "Area plan (no cause recorded)": 128 + 256 + 512,
         "Not recorded": 1024,
     }
+
+
+def test_a_blank_indemnity_adds_nothing_to_the_county_losses(tmp_path):
+    # The fixtures hold a Polk corn Drought row with every amount blank; the other Drought rows sum to 3244918.58.
+    published = run_published(tmp_path)
+    losses = json.loads(published["county-losses.json"].read_text())
+    polk_drought = [r for r in losses if (r["county_fips"], r["crop"], r["cause"]) == ("19153", "CORN", "Drought")]
+    assert [r["indemnity"] for r in polk_drought] == [3244918.58]
