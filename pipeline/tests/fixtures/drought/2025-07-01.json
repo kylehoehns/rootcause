@@ -43,5 +43,35 @@
   "validStart": "2025-07-01T00:00:00",
   "validEnd": "2025-07-07T23:59:59",
   "statisticFormatID": 2
+ },
+ {
+  "mapDate": "2025-07-01T00:00:00",
+  "fips": "19003",
+  "county": "Adams County",
+  "state": "IA",
+  "none": 73.81,
+  "d0": 26.19,
+  "d1": "",
+  "d2": 0.0,
+  "d3": 0.0,
+  "d4": 0.0,
+  "validStart": "2025-07-01T00:00:00",
+  "validEnd": "2025-07-07T23:59:59",
+  "statisticFormatID": 2
+ },
+ {
+  "mapDate": "2025-07-01T00:00:00",
+  "fips": "19005",
+  "county": "Allamakee County",
+  "state": "IA",
+  "none": 73.81,
+  "d0": 26.19,
+  "d1": 0.0,
+  "d2": null,
+  "d3": 0.0,
+  "d4": 0.0,
+  "validStart": "2025-07-01T00:00:00",
+  "validEnd": "2025-07-07T23:59:59",
+  "statisticFormatID": 2
  }
 ]

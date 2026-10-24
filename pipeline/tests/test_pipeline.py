@@ -6,7 +6,7 @@ from datetime import date
 import pytest
 
 from rootcause_pipeline.__main__ import run
-from rootcause_pipeline.ingest import PREMIUM_COLUMNS, fetch_drought_live, iowa_rows, matching_map_dates
+from rootcause_pipeline.ingest import PREMIUM_COLUMNS, drought_rows, fetch_drought_live, iowa_rows, matching_map_dates
 
 
 def run_published(tmp_path):
@@ -247,3 +247,17 @@ def test_a_blank_indemnity_adds_nothing_to_the_county_losses(tmp_path):
     losses = json.loads(published["county-losses.json"].read_text())
     polk_drought = [r for r in losses if (r["county_fips"], r["crop"], r["cause"]) == ("19153", "CORN", "Drought")]
     assert [r["indemnity"] for r in polk_drought] == [3244918.58]
+
+
+def test_a_drought_row_with_a_blank_or_null_percent_is_left_out(tmp_path):
+    # The 2025 fixture holds Adams (blank d1) and Allamakee (null d2) rows next to the good ones.
+    rows = json.loads(run_published(tmp_path)["drought.json"].read_text())
+    assert len(rows) == 9
+    assert {"19003", "19005"}.isdisjoint(r["county_fips"] for r in rows)
+
+
+def test_a_null_percent_is_ingested_as_blank_not_the_text_none():
+    row = {"mapDate": "2025-07-01T00:00:00", "fips": "19005", "none": 0.0, "d0": 0.0, "d1": 0.0, "d2": None}
+    row |= {"d3": 0.0, "d4": 0.0}
+    out = next(drought_rows(lambda start, end: [row], date(2025, 7, 2)))
+    assert out["d2"] == ""
