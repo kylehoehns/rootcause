@@ -60,3 +60,19 @@ models:
       - name: "d4"
         data_type: decimal(5, 2)
         data_tests: [not_null]
+  - name: county_premiums
+    config:
+      contract: { enforced: true }
+    columns:
+      - name: year
+        data_type: integer
+        data_tests: [not_null]
+      - name: county_fips
+        data_type: varchar
+        data_tests: [not_null]
+      - name: crop
+        data_type: varchar
+        data_tests: [not_null]
+      - name: premium
+        data_type: bigint
+        data_tests: [not_null]

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "county-premiums.schema.json",
+  "title": "CountyPremiums",
+  "description": "Crop insurance total premium per year, county and crop, from RMA's summary of business. Published by the pipeline as county-premiums.json; the UI reads it.",
+  "type": "array",
+  "items": {
+    "title": "CountyPremium",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["year", "county_fips", "crop", "premium"],
+    "properties": {
+      "year": { "type": "integer", "description": "Commodity (crop) year." },
+      "county_fips": { "type": "string", "pattern": "^[0-9]{5}$", "description": "State and county FIPS code, e.g. 19153." },
+      "crop": { "type": "string", "description": "Crop name spelled as in county-losses.json, e.g. CORN, so the two files join on year, county_fips and crop." },
+      "premium": { "type": "integer", "description": "Total Premium Amount in whole dollars. Unique per year, county_fips and crop." }
+    }
+  }
+}

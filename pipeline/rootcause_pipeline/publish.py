@@ -13,6 +13,7 @@ CONTRACTS = Path(__file__).resolve().parents[2] / "contracts"
 # Published file -> the mart it comes from.
 FILES = {
     "county-losses.json": "select * from main.county_losses order by year, county_fips, crop, cause",
+    "county-premiums.json": "select * from main.county_premiums order by year, county_fips, crop",
     "drought.json": "select * from main.drought order by map_date, county_fips",
 }
 GEOJSON = "iowa-counties.geojson"
