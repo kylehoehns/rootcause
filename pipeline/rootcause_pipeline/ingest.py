@@ -126,6 +126,7 @@ def fetch_live_boundaries() -> bytes:
 
 
 def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Iterator[dict[str, str]]:
+    state = columns.index("state_abbreviation")
     with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
         [name] = zipped.namelist()
         with zipped.open(name) as lines:
@@ -133,7 +134,6 @@ def iowa_rows(archive: bytes, columns: list[str], year: int, file: str) -> Itera
                 if not line.strip():
                     continue
                 fields = line.rstrip("\r\n").split("|")
-                state = columns.index("state_abbreviation")
                 if len(fields) > state and fields[state].strip() != "IA":
                     continue
                 if len(fields) != len(columns):
