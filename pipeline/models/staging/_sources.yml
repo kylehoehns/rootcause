@@ -4,3 +4,5 @@ sources:
     tables:
       - name: cause_of_loss
         description: RMA cause-of-loss rows for Iowa, one per row of the colsom_<year> files.
+      - name: counties
+        description: Iowa county boundaries from Census TIGERweb, one per feature. geometry_json is GeoJSON text.

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "iowa-counties.schema.json",
+  "title": "IowaCounties",
+  "description": "Iowa's 99 county boundaries in WGS84, from the Census Bureau's TIGERweb service. Published by the pipeline as iowa-counties.geojson; the UI draws the maps from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "features"],
+  "properties": {
+    "type": { "const": "FeatureCollection" },
+    "features": {
+      "type": "array",
+      "minItems": 99,
+      "maxItems": 99,
+      "items": {
+        "title": "IowaCounty",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "properties", "geometry"],
+        "properties": {
+          "type": { "const": "Feature" },
+          "properties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["county_fips", "county_name"],
+            "properties": {
+              "county_fips": { "type": "string", "pattern": "^19[0-9]{3}$", "description": "State and county FIPS code, e.g. 19153." },
+              "county_name": { "type": "string", "description": "County name as the Census Bureau records it, e.g. Polk County." }
+            }
+          },
+          "geometry": {
+            "type": "object",
+            "required": ["type", "coordinates"],
+            "properties": {
+              "type": { "enum": ["Polygon", "MultiPolygon"] },
+              "coordinates": { "type": "array", "description": "Longitude, latitude pairs (WGS84) in GeoJSON polygon nesting." }
+            }
+          }
+        }
+      }
+    }
+  }
+}

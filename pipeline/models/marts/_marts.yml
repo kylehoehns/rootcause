@@ -19,3 +19,16 @@ models:
       - name: indemnity
         data_type: decimal(38, 2)
         data_tests: [not_null]
+  - name: iowa_counties
+    config:
+      contract: { enforced: true }
+    columns:
+      - name: county_fips
+        data_type: varchar
+        data_tests: [not_null, unique]
+      - name: county_name
+        data_type: varchar
+        data_tests: [not_null]
+      - name: geometry_json
+        data_type: varchar
+        data_tests: [not_null]

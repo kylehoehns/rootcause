@@ -11,6 +11,7 @@ CONTRACTS = Path(__file__).resolve().parents[2] / "contracts"
 
 # Published file -> the mart it comes from.
 FILES = {"county-losses.json": "select * from main.county_losses order by year, county_fips, crop, cause"}
+GEOJSON = "iowa-counties.geojson"
 
 
 def plain(value):
@@ -30,4 +31,27 @@ def publish(database: Path, out: Path) -> list[Path]:
             path = out / name
             path.write_text(json.dumps(rows, indent=2) + "\n")
             written.append(path)
+        written.append(publish_counties(db, out))
     return written
+
+
+def publish_counties(db: duckdb.DuckDBPyConnection, out: Path) -> Path:
+    """The county boundaries as a GeoJSON FeatureCollection, one feature per row of the iowa_counties mart."""
+    rows = db.execute(
+        "select county_fips, county_name, geometry_json from main.iowa_counties order by county_fips"
+    ).fetchall()
+    collection = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"county_fips": fips, "county_name": name},
+                "geometry": json.loads(geometry),
+            }
+            for fips, name, geometry in rows
+        ],
+    }
+    validate(collection, json.loads((CONTRACTS / GEOJSON.replace(".geojson", ".schema.json")).read_text()))
+    path = out / GEOJSON
+    path.write_text(json.dumps(collection, separators=(",", ":")) + "\n")
+    return path

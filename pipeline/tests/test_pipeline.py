@@ -29,7 +29,7 @@ LOSSES = [
 
 
 def test_the_pipeline_publishes_iowa_losses_per_year_county_crop_and_cause(tmp_path):
-    [published] = run(tmp_path / "test.duckdb", tmp_path / "out")
+    published = run(tmp_path / "test.duckdb", tmp_path / "out")[0]
     assert published.name == "county-losses.json"
     assert json.loads(published.read_text()) == [
         {"year": year, "county_fips": fips, "crop": crop, "cause": cause, "indemnity": indemnity}
@@ -38,6 +38,27 @@ def test_the_pipeline_publishes_iowa_losses_per_year_county_crop_and_cause(tmp_p
 
 
 def test_polk_county_2012_adds_up_to_the_home_page_total(tmp_path):
-    [published] = run(tmp_path / "test.duckdb", tmp_path / "out")
+    published = run(tmp_path / "test.duckdb", tmp_path / "out")[0]
     polk = [r["indemnity"] for r in json.loads(published.read_text()) if r["county_fips"] == "19153"]
     assert round(sum(polk), 2) == 3776155.00
+
+
+def test_the_pipeline_publishes_99_iowa_county_boundaries(tmp_path):
+    published = {p.name: p for p in run(tmp_path / "test.duckdb", tmp_path / "out")}
+    counties = json.loads(published["iowa-counties.geojson"].read_text())
+    assert counties["type"] == "FeatureCollection"
+    assert len(counties["features"]) == 99
+    assert len({f["properties"]["county_fips"] for f in counties["features"]}) == 99
+    polk = next(f for f in counties["features"] if f["properties"]["county_fips"] == "19153")
+    assert polk["properties"] == {"county_fips": "19153", "county_name": "Polk County"}
+    assert polk["geometry"]["type"] in ("Polygon", "MultiPolygon")
+
+
+def test_the_county_boundaries_cover_every_county_in_the_loss_data(tmp_path):
+    published = {p.name: p for p in run(tmp_path / "test.duckdb", tmp_path / "out")}
+    boundaries = {
+        f["properties"]["county_fips"] for f in json.loads(published["iowa-counties.geojson"].read_text())["features"]
+    }
+    losses = {r["county_fips"] for r in json.loads(published["county-losses.json"].read_text())}
+    assert losses == {"19001", "19153", "19169"}
+    assert losses <= boundaries
