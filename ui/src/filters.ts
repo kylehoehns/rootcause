@@ -29,3 +29,8 @@ export function filtersToSearch(filters: Filters, latestYear: number) {
   const query = params.toString();
   return query ? `?${query}` : "";
 }
+
+/** Drops a cause the data doesn't have, such as a saved link's pre-rename name, so the page shows every cause rather than nothing. */
+export function withKnownCause(filters: Filters, causes: string[]): Filters {
+  return filters.cause && !causes.includes(filters.cause) ? { ...filters, cause: null } : filters;
+}

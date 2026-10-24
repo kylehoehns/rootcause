@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { filtersFromSearch, filtersToSearch } from "./filters";
+import { filtersFromSearch, filtersToSearch, withKnownCause } from "./filters";
 
 test("no query means every year, cause and crop", () => {
   expect(filtersFromSearch("", 2024)).toEqual({ from: 2001, to: 2024, cause: null, crop: null });
@@ -19,4 +19,10 @@ test("years outside the range or swapped are corrected", () => {
   expect(filtersFromSearch("?from=1990&to=2090", 2024)).toMatchObject({ from: 2001, to: 2024 });
   expect(filtersFromSearch("?from=2015&to=2010", 2024)).toMatchObject({ from: 2010, to: 2015 });
   expect(filtersFromSearch("?from=abc", 2024)).toMatchObject({ from: 2001 });
+});
+
+test("a cause that is not in the data falls back to every cause", () => {
+  const filters = { from: 2010, to: 2015, cause: "Drought (old name)", crop: null };
+  expect(withKnownCause(filters, ["Drought", "Hail"])).toEqual({ ...filters, cause: null });
+  expect(withKnownCause({ ...filters, cause: "Hail" }, ["Drought", "Hail"])).toEqual({ ...filters, cause: "Hail" });
 });
