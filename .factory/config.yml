@@ -12,9 +12,9 @@ protected: [.github/, .factory/, .agents/, .claude/, scripts/]
 
 sandbox:
   docker: false
-  # Kept between runs on the maintainer's machine, so a run doesn't download every tool and package again.
+  # Kept between runs on the maintainer's machine, so a run doesn't download every package again. mise's tools
+  # aren't cached: a bind-mounted cache can't keep their executable bits, so each run installs them (about 30s).
   caches:
-    - { name: mise, path: /home/agent/.local/share/mise }
     - { name: uv, path: /home/agent/.cache/uv }
     - { name: pnpm, path: /home/agent/.local/share/pnpm }
     - { name: playwright, path: /home/agent/.cache/ms-playwright }
