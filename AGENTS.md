@@ -12,7 +12,7 @@ Iowa crop insurance losses and drought, built by a software factory ([factory-ki
 
 - The files in `ui/public/data/` are a published contract between the pipeline and the UI. `contracts/*.schema.json` is its source of truth: the pipeline validates every file against it before writing, and the UI's types are generated from it (`pnpm types` writes `ui/src/contracts.ts`; never edit that file). Changing a file's shape means changing the schema, the dbt contract in `pipeline/models/marts/_marts.yml` and the UI together, in one PR.
 - `just check` must pass with no network access to the data sources. Tests use small fixtures committed under `pipeline/tests/`. Only the deploy workflow downloads real data.
-- Where tests go: `pipeline/tests/` (pytest), dbt `data_tests` in the models' `.yml`, `ui/src/*.test.ts` (Vitest) for logic, and `ui/e2e/` (Playwright) for what a visitor sees. Each ticket that changes a page adds a journey in `ui/e2e/` that saves a screenshot to `test-results/`. Leave existing journeys as they are.
+- Where tests go: `pipeline/tests/` (pytest), dbt `data_tests` in the models' `.yml`, `ui/src/*.test.ts` (Vitest) for logic, and `ui/e2e/` (Playwright) for what a visitor sees. Each ticket that changes a page adds a journey in `ui/e2e/` that saves a screenshot to `test-results/`. Don't change or delete an existing journey without the maintainer's yes: ask (live or on the ticket) first.
 - Nothing is served but static files: no API, no server code, no runtime secrets. Data reaches the site only through files the pipeline publishes.
 
 ## Skills and hooks
