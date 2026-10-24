@@ -18,6 +18,7 @@ LOSSES = [
     (2012, "19001", "CORN", "Decline in Price", 153674.4),
     (2012, "19001", "CORN", "Drought", 53473.0),
     (2012, "19001", "CORN", "Failure of Irrigation Supply", 96.0),
+    (2012, "19001", "CORN", "Gripping Wind Damage", 2048.0),
     (2012, "19001", "CORN", "Mycotoxin", 24.0),
     (2012, "19001", "CORN", "Not recorded", 1024.0),
     (2012, "19001", "CORN", "Other (Snow, Lightning, Etc.)", 7.0),
@@ -236,4 +237,5 @@ def test_cause_spellings_merge_and_plan_names_and_blanks_get_their_own_causes(tm
         "Failure of Irrigation Supply": 32 + 64,
         "Area plan (no cause recorded)": 128 + 256 + 512,
         "Not recorded": 1024,
+        "Gripping Wind Damage": 2048,
     }
